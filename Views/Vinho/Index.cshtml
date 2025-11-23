@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Fiap.Agnello.Models.VinhoModel>
+<h1>Vinhos</h1>
+<p>
+    <!-- uso de TagHelpers para definir o Controller e a Action -->
+    <a asp-controller="Vinho" asp-action="Create">Novo Vinho</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Preco</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <label>@item.VinhoId</label>
+                </td>
+                <td>
+                    <label>@item.Nome</label>
+                </td>
+                <td>
+                    <label>@item.Tipo</label>
+                </td>
+                <td>
+                    <label>@item.Preco</label>
+                </td>
+                <td>
+                    <!-- asp-route-id é usado para informar o Id do Item selecionado. -->
+                    <a asp-controller="Vinho"
+                       asp-action="Edit"
+                       asp-route-id="@item.VinhoId">Editar</a>
+                    <a asp-controller="Vinho"
+                       asp-action="Detail"
+                       asp-route-id="@item.VinhoId">Consultar</a>
+                    <a asp-controller="Vinho"
+                       asp-action="Delete"
+                       asp-route-id="@item.VinhoId">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

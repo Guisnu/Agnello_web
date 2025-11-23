@@ -1,0 +1,154 @@
+﻿@model Fiap.Agnello.Models.VinhoModel
+<style>
+    h1.agnello {
+        font-family: 'Allura', cursive;
+        font-size: 77px;
+        font-weight: bold;
+        text-align: center;
+        margin: 40px 0 20px;
+        color: #000;
+    }
+
+    .card-vinho {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background: #f2f2f2;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    label {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .btn-black {
+        background-color: #000;
+        color: white;
+        font-weight: bold;
+        padding: 16px;
+        font-size: 18px;
+        width: 100%;
+        border: none;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+        .btn-black:hover {
+            background-color: #333;
+        }
+
+        .btn-black:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+</style>
+<body>
+
+    <div class="container">
+        <h1 class="agnello">Agnello</h1>
+
+        <div class="card-vinho">
+            <form asp-action="Create" method="post">
+                <!-- Nome -->
+                <div class="mb-3">
+                    <label class="form-label">Nome do Vinho</label>
+                    <input asp-for="Nome" class="form-control form-control-lg" placeholder="Digite o nome" required />
+                </div>
+
+                <!-- Tipo -->
+                <div class="mb-3">
+                    <label class="form-label">Tipo de vinho</label>
+                    <select asp-for="Tipo" class="form-select form-control-lg" asp-items="@(ViewBag.Tipos)" required>
+                        <option value="" disabled selected>Selecione o tipo</option>
+                    </select>
+                </div>
+
+                <!-- Preço: visível formatado (pt-BR), escondido para enviar o valor numérico ao servidor -->
+                <div class="mb-3">
+                    <label class="form-label">Preço do Vinho</label>
+
+                    <!-- campo visível apenas para entrada/formatacao -->
+                    <input
+                        type="text"
+                        id="precoInput"
+                        class="form-control form-control-lg font-monospace"
+                        placeholder="0,00"
+                        style="letter-spacing: 0.5px;"
+                        autocomplete="off"
+                        inputmode="decimal"
+                        required />
+
+                    <!-- campo oculto ligado ao modelo: aqui será colocado o valor sem formatação (conforme cultura) -->
+                    <input asp-for="Preco" type="hidden" id="precoHidden" />
+                </div>
+
+                <button type="submit" id="btnCadastrar" class="btn-black" disabled>
+                    CADASTRAR
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="btn btn-link">Voltar para lista</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // separador decimal do servidor (ex.: ',' para pt-BR)
+        const decimalSep = '@System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator';
+
+        const precoInput = document.getElementById('precoInput');
+        const precoHidden = document.getElementById('precoHidden');
+        const btnCadastrar = document.getElementById('btnCadastrar');
+        const nomeInput = document.querySelector('[name="Nome"]');
+
+        let valorReal = 0;
+
+        function formatarPrecoVisual() {
+            let apenasNumeros = precoInput.value.replace(/\D/g, '');
+
+            if (!apenasNumeros || apenasNumeros === '0') {
+                precoInput.value = '';
+                valorReal = 0;
+            } else {
+                valorReal = parseInt(apenasNumeros) / 100;
+                let formatado = valorReal.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                precoInput.value = formatado;
+            }
+
+            setTimeout(() => {
+                precoInput.selectionStart = precoInput.selectionEnd = precoInput.value.length;
+            }, 0);
+
+            const nomeOk = nomeInput.value.trim().length > 0;
+            const precoOk = valorReal > 0;
+            btnCadastrar.disabled = !(nomeOk && precoOk);
+        }
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (valorReal > 0) {
+                let valueStr = valorReal.toFixed(2); // "1234.56"
+                if (decimalSep !== '.') {
+                    valueStr = valueStr.replace('.', decimalSep); // "1234,56" para pt-BR
+                }
+                precoHidden.value = valueStr;
+                // opcional: manter o campo visível formatado para o usuário
+                precoInput.value = valorReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+        });
+
+        // Eventos
+        precoInput.addEventListener('input', formatarPrecoVisual);
+        precoInput.addEventListener('focus', formatarPrecoVisual);
+        nomeInput.addEventListener('input', formatarPrecoVisual);
+
+        window.addEventListener('load', formatarPrecoVisual);
+    </script>
+
+</body>
