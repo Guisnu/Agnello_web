@@ -1,5 +1,10 @@
 ﻿@model IEnumerable<Fiap.Agnello.Models.VinhoModel>
+
 <h1>Vinhos</h1>
+@if (!string.IsNullOrEmpty((String)TempData["MensagemSucesso"]))
+{
+    <div class="alert alert-warning" role="alert">@TempData["MensagemSucesso"]</div>
+}
 <p>
     <!-- uso de TagHelpers para definir o Controller e a Action -->
     <a asp-controller="Vinho" asp-action="Create">Novo Vinho</a>

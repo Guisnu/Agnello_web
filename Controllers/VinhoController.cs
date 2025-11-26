@@ -47,6 +47,14 @@ namespace Fiap.Agnello.Controllers
             return View(vinhoConsultado);
         }
 
+        [HttpPost]
+        public IActionResult Edit(VinhoModel vinhoModel)
+        {
+            // Simula a edição do vinho (em um banco de dados, por exemplo)
+            TempData["MensagemSucesso"] = $"Os dados do Vinho {vinhoModel.Nome} foram alterados com sucesso!";
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpGet]
         public IActionResult Create()
         {
@@ -64,8 +72,8 @@ namespace Fiap.Agnello.Controllers
                 ViewBag.Tipos = new SelectList(TiposVinho);
                 return View(vinhoModel);
             }
-
-            Console.WriteLine("Vinho cadastrado com sucesso!");
+            // Simula o cadastro do vinho (em um banco de dados, por exemplo)
+            TempData["MensagemSucesso"] = "Vinho cadastrado com sucesso!";
 
             return RedirectToAction(nameof(Index));
         }
