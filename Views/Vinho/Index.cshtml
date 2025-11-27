@@ -1,53 +1,122 @@
 ﻿@model IEnumerable<Fiap.Agnello.Models.VinhoModel>
 
-<h1>Vinhos</h1>
-@if (!string.IsNullOrEmpty((String)TempData["MensagemSucesso"]))
-{
-    <div class="alert alert-warning" role="alert">@TempData["MensagemSucesso"]</div>
-}
-<p>
-    <!-- uso de TagHelpers para definir o Controller e a Action -->
-    <a asp-controller="Vinho" asp-action="Create">Novo Vinho</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Tipo</th>
-            <th>Preco</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+<style>
+    h1.agnello {
+        font-family: 'Allura', cursive;
+        font-size: 77px;
+        font-weight: bold;
+        text-align: center;
+        margin: 40px 0 20px;
+        color: #000;
+    }
+
+    .card-vinho {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px;
+        background: #f2f2f2;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    label {
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    .btn-black {
+        background-color: #000;
+        color: white;
+        font-weight: bold;
+        padding: 10px 14px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+    }
+
+    .btn-black:hover {
+        background-color: #333;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid rgba(0,0,0,0.08);
+        font-weight: 700;
+    }
+
+    .table tbody tr {
+        background: #fff;
+        border-radius: 8px;
+    }
+
+    .acoes a {
+        margin-right: 8px;
+        font-size: 13px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 28px;
+        color: #666;
+    }
+</style>
+
+<div class="container">
+    <h1 class="agnello">Agnello</h1>
+
+    <div class="card-vinho">
+        @if (!string.IsNullOrEmpty((string)TempData["MensagemSucesso"]))
         {
-            <tr>
-                <td>
-                    <label>@item.VinhoId</label>
-                </td>
-                <td>
-                    <label>@item.Nome</label>
-                </td>
-                <td>
-                    <label>@item.Tipo</label>
-                </td>
-                <td>
-                    <label>@item.Preco</label>
-                </td>
-                <td>
-                    <!-- asp-route-id é usado para informar o Id do Item selecionado. -->
-                    <a asp-controller="Vinho"
-                       asp-action="Edit"
-                       asp-route-id="@item.VinhoId">Editar</a>
-                    <a asp-controller="Vinho"
-                       asp-action="Detail"
-                       asp-route-id="@item.VinhoId">Consultar</a>
-                    <a asp-controller="Vinho"
-                       asp-action="Delete"
-                       asp-route-id="@item.VinhoId">Excluir</a>
-                </td>
-            </tr>
+            <div class="alert alert-warning" role="alert">@TempData["MensagemSucesso"]</div>
         }
-    </tbody>
-</table>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div></div>
+            <a asp-controller="Vinho" asp-action="Create" class="btn-black">Novo Vinho</a>
+        </div>
+
+        @if (!Model?.Any() ?? true)
+        {
+            <div class="empty-state">Nenhum vinho cadastrado.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Preço</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.VinhoId</td>
+                                <td>@item.Nome</td>
+                                <td>@item.Tipo</td>
+                                <td>
+                                    @(
+                                        item.Preco is null
+                                        ? string.Empty
+                                        : string.Format(System.Globalization.CultureInfo.GetCultureInfo("pt-BR"), "{0:C}", item.Preco)
+                                    )
+                                </td>
+                                <td class="acoes">
+                                    <a asp-controller="Vinho" asp-action="Edit" asp-route-id="@item.VinhoId" class="btn btn-link">Editar</a>
+                                    <a asp-controller="Vinho" asp-action="Detail" asp-route-id="@item.VinhoId" class="btn btn-link">Consultar</a>
+                                    <a asp-controller="Vinho" asp-action="Delete" asp-route-id="@item.VinhoId" class="btn btn-link text-danger">Excluir</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
