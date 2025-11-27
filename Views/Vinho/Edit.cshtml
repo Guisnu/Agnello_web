@@ -52,6 +52,11 @@
 
         <div class="card-vinho">
             <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <!-- Hidden: envia o ID do vinho para o POST -->
+                <input asp-for="VinhoId" type="hidden" />
+
                 <!-- Nome -->
                 <div class="mb-3">
                     <label class="form-label">Nome do Vinho</label>

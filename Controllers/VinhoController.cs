@@ -1,14 +1,17 @@
-﻿using Fiap.Agnello.Models;
+﻿using Fiap.Agnello.Data;
+using Fiap.Agnello.Migrations;
+using Fiap.Agnello.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fiap.Agnello.Controllers
 {
 
     public class VinhoController : Controller
     {
-        // Lista para armazenar os vinhos
-        public IList<VinhoModel> vinhos { get; set; }
+
+        private readonly DatabaseContext _databasecontext;
 
         // Lista de tipos declarada no controller para uso nas Views
         private static readonly List<string> TiposVinho = new()
@@ -20,28 +23,45 @@ namespace Fiap.Agnello.Controllers
             "Branco"
         };
 
-        public VinhoController()
+        public VinhoController(DatabaseContext databaseContext)
         {
-            // Simula a busca de vinhos no banco de dados
-            vinhos = GerarVinhosMocados();
+            _databasecontext = databaseContext;
         }
         public IActionResult Index()
         {
-            // Evitando valores null 
+            var vinhos = _databasecontext.Vinhos.ToList();
             if (vinhos == null)
             {
                 vinhos = new List<VinhoModel>();
             }
+
             return View(vinhos);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.Tipos = new SelectList(TiposVinho);
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(VinhoModel vinhoModel)
+        {
+            _databasecontext.Vinhos.Add(vinhoModel);
+            _databasecontext.SaveChanges();
+
+            TempData["MensagemSucesso"] = $"Vinho {vinhoModel.Nome} cadastrado com sucesso!";
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
             var vinhoConsultado =
-                vinhos.Where(v => v.VinhoId == id).FirstOrDefault();
+                _databasecontext.Vinhos.Find(id);
 
-            // garante que a lista aparece na view e marca o tipo atual como selecionado
             ViewBag.Tipos = new SelectList(TiposVinho, vinhoConsultado?.Tipo);
 
             return View(vinhoConsultado);
@@ -50,53 +70,45 @@ namespace Fiap.Agnello.Controllers
         [HttpPost]
         public IActionResult Edit(VinhoModel vinhoModel)
         {
-            // Simula a edição do vinho (em um banco de dados, por exemplo)
-            TempData["MensagemSucesso"] = $"Os dados do Vinho {vinhoModel.Nome} foram alterados com sucesso!";
+            _databasecontext.Vinhos.Update(vinhoModel);
+            _databasecontext.SaveChanges();
+
+            TempData["MensagemSucesso"] = $"Os dados do Vinho '{vinhoModel.Nome}' foram alterados com sucesso!";
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var vinho = _databasecontext.Vinhos.Find(id);
+            if (vinho != null)
+            {
+                _databasecontext.Vinhos.Remove(vinho);
+                _databasecontext.SaveChanges();
+                TempData["mensagemSucesso"] = $"Os dados do vinho '{vinho.Nome}' foram removidos com sucesso";
+            }
+            else
+            {
+                TempData["mensagemSucesso"] = "Vinho inexistente.";
+            }
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Detail(int id)
         {
-            // disponibiliza a lista para a View (asp-items aceita SelectList/IEnumerable<SelectListItem>)
-            ViewBag.Tipos = new SelectList(TiposVinho);
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Create(VinhoModel vinhoModel)
-        {
-            // exemplo de validação: se inválido, reexibe a view e precisa repopular a lista
-            if (!ModelState.IsValid)
+            var vinho = _databasecontext.Vinhos
+                            .FirstOrDefault(c => c.VinhoId == id); // Encontra o vinho pelo id
+            if (vinho == null)
             {
-                ViewBag.Tipos = new SelectList(TiposVinho);
-                return View(vinhoModel);
+                return NotFound(); // Retorna um erro 404 se o vinho não for encontrado
             }
-            // Simula o cadastro do vinho (em um banco de dados, por exemplo)
-            TempData["MensagemSucesso"] = "Vinho cadastrado com sucesso!";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        /**
-         * Este método estático GerarVinhosMocados 
-         * cria uma lista de 5 vinhos com dados fictícios
-         */
-        public static List<VinhoModel> GerarVinhosMocados()
-        {
-            var vinhos = new List<VinhoModel>();
-            for (int i = 1; i <= 5; i++)
+            else
             {
-                var vinho = new VinhoModel
-                {
-                    VinhoId = i,
-                    Nome = "NomeVinho" + i,
-                    Tipo = TiposVinho[(i - 1) % TiposVinho.Count],
-                    Preco = 10.0 + i
-                };
-                vinhos.Add(vinho);
+                return View(vinho); // Retorna a view com os dados do vinho e seu representante
             }
-            return vinhos;
         }
+
     }
 }

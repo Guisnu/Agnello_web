@@ -1,0 +1,35 @@
+﻿@model Fiap.Agnello.Models.VinhoModel
+
+<h1>Vinho</h1>
+
+<h4>Detalhe</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <div class="form-group">
+            <label asp-for="Nome" class="control-label fw-bold"></label>
+            <div class="col-md-10">
+                <span>@Model.Nome</span>
+            </div>
+        </div>
+        <br />
+        <div class="form-group">
+            <label asp-for="Tipo" class="control-label fw-bold"></label>
+            <div class="col-md-10">
+                <span>@Model.Tipo</span>
+            </div>
+        </div>
+        <br />
+        <div class="form-group">
+            <label asp-for="Preco" class="control-label fw-bold"></label>
+            <div class="col-md-10">
+                <span>@String.Format(System.Globalization.CultureInfo.GetCultureInfo("pt-BR"), "{0:C}", Model.Preco)</span>
+            </div>
+        </div>
+        <br />
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Voltar</a>
+</div>
