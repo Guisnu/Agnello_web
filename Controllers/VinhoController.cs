@@ -73,7 +73,7 @@ namespace Fiap.Agnello.Controllers
             _databasecontext.Vinhos.Update(vinhoModel);
             _databasecontext.SaveChanges();
 
-            TempData["MensagemSucesso"] = $"Os dados do Vinho '{vinhoModel.Nome}' foram alterados com sucesso!";
+            TempData["MensagemSucesso"] = $"Os dados do Vinho {vinhoModel.Nome} foi alterado com sucesso!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -86,7 +86,7 @@ namespace Fiap.Agnello.Controllers
             {
                 _databasecontext.Vinhos.Remove(vinho);
                 _databasecontext.SaveChanges();
-                TempData["mensagemSucesso"] = $"Os dados do vinho '{vinho.Nome}' foram removidos com sucesso";
+                TempData["mensagemSucesso"] = $"Os dados do vinho {vinho.Nome} foram removidos com sucesso";
             }
             else
             {
